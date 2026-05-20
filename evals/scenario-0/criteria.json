@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether the agent implements the JavaCV camera probe pattern from the camera-setup-javacv skill: probing multiple indices, using a brightness threshold of 10.0, waiting 500 ms after start(), supporting CAM env var override, safe cleanup, correct resolution setting, and AutoCloseable implementation.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Probe range 0-5",
+      "description": "The probe loop iterates camera indices from 0 through at least 5 (e.g. 0..5 or a MAX_PROBE_INDEX constant equal to 5), not just index 0 alone",
+      "max_score": 10
+    },
+    {
+      "name": "500 ms warm-up",
+      "description": "Code calls Thread.sleep(500) or equivalent (constant named WARM_UP_MS set to 500) after grabber.start() and before the first grab() call",
+      "max_score": 12
+    },
+    {
+      "name": "Brightness threshold 10.0",
+      "description": "Code uses a brightness threshold of exactly 10.0 (or a constant MIN_BRIGHTNESS = 10.0) to filter cameras whose mean brightness is below that value",
+      "max_score": 12
+    },
+    {
+      "name": "opencv_core.mean for brightness",
+      "description": "Brightness is computed using mean() from opencv_core (e.g. org.bytedeco.opencv.global.opencv_core.mean) called on the Mat, then .get(0L)",
+      "max_score": 8
+    },
+    {
+      "name": "Safe grabber.stop()",
+      "description": "grabber.stop() is called inside a runCatching { } block (or equivalent try-catch that swallows exceptions) so cleanup never throws",
+      "max_score": 10
+    },
+    {
+      "name": "CAM env var override",
+      "description": "Code reads the CAM environment variable (System.getenv(\"CAM\")) and, when it contains a valid integer, uses that index directly instead of running the probe",
+      "max_score": 12
+    },
+    {
+      "name": "imageWidth/imageHeight set before start",
+      "description": "grabber.imageWidth and grabber.imageHeight are explicitly set before grabber.start() is called (not left at default 0)",
+      "max_score": 10
+    },
+    {
+      "name": "AutoCloseable Camera",
+      "description": "The Camera class (or equivalent wrapper) implements AutoCloseable (or Closeable), with a close() method that stops the grabber",
+      "max_score": 8
+    },
+    {
+      "name": "Probe result data structure",
+      "description": "A data class or equivalent structure holds the probe result for each camera, including at minimum: index, resolution (width/height), and brightness value",
+      "max_score": 10
+    },
+    {
+      "name": "No hardcoded index 0",
+      "description": "The camera used for capture is NOT selected as OpenCVFrameGrabber(0) unconditionally — the selected index comes from the probe or the CAM env var",
+      "max_score": 8
+    }
+  ]
+}

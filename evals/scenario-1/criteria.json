@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether the agent applies the frame-skip-policy-kotlin skill: correct detection cadences (face every 3rd frame, emotion every 30th frame), continuous frame grabs, persisted-overlay, 4x downscale before Haar detection, full-resolution crop for recognition, scaled-up bounding boxes, and no delay between grabs.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Face detection every 3rd frame",
+      "description": "Face detection (Haar cascade or equivalent) is called only when frames % 3 == 0 (or equivalent modulo-3 check), not on every frame",
+      "max_score": 12
+    },
+    {
+      "name": "Emotion every 30th frame",
+      "description": "Emotion classification is called only when frames % 30 == 0 (or equivalent modulo-30 check), not on every frame or at the detection cadence",
+      "max_score": 12
+    },
+    {
+      "name": "Grab on every iteration",
+      "description": "grabber.grab() is called on every loop iteration — the grab is NOT gated behind a modulo check or skipped on non-detect frames",
+      "max_score": 10
+    },
+    {
+      "name": "Persisted overlay variable",
+      "description": "A variable (e.g. lastIdentities or lastBoxes) stores the most recent detection results and is redrawn on every frame, including frames where detection was skipped",
+      "max_score": 12
+    },
+    {
+      "name": "4x downscale before detection",
+      "description": "The frame is resized to 1/4 of its width and height (cols/4, rows/4) before the Haar cascade detectMultiScale call",
+      "max_score": 12
+    },
+    {
+      "name": "Bounding boxes scaled up 4x",
+      "description": "Detected bounding box coordinates (x, y, width, height) are multiplied by 4 to map back to full-resolution coordinates after detection on the downscaled frame",
+      "max_score": 10
+    },
+    {
+      "name": "Recognition on full-resolution frame",
+      "description": "The crop used for face recognition/embedding is taken from the full-resolution frame (not from the downscaled frame used for detection)",
+      "max_score": 10
+    },
+    {
+      "name": "No delay between grabs",
+      "description": "The loop does NOT contain a Thread.sleep(), delay(), or any artificial pause between consecutive grabber.grab() calls",
+      "max_score": 8
+    },
+    {
+      "name": "Detection Hz diagnostic",
+      "description": "Code includes a diagnostic that measures and logs/prints the face-detection frequency in Hz (e.g. 1000.0 / elapsed_ms or equivalent)",
+      "max_score": 8
+    },
+    {
+      "name": "No full-res detection",
+      "description": "The cascade.detectMultiScale call receives the downscaled (small/resized) frame, NOT the original full-resolution frame",
+      "max_score": 6
+    }
+  ]
+}

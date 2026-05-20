@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether the agent uses the Flow-based approach from the frame-skip-policy-kotlin skill: Flow.sample() at the correct intervals for detection and emotion, continuous frame production, downscale before Haar detection, full-resolution crop for recognition, 4x bounding box scale-up, and persisted overlay for the preview.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "sample(100ms) for detection",
+      "description": "The face-detection flow uses .sample(100.milliseconds) or a numerically equivalent interval (e.g. 100L milliseconds) — NOT a shorter or longer interval",
+      "max_score": 14
+    },
+    {
+      "name": "sample(1s) for emotion",
+      "description": "The emotion classification flow uses .sample(1.seconds) or a numerically equivalent interval (e.g. 1000.milliseconds) — clearly longer than the detection interval",
+      "max_score": 14
+    },
+    {
+      "name": "Continuous frame producer",
+      "description": "The frame-producing Flow emits on every grabbed frame without any delay(), sleep(), or sample() in the producer itself — throttling happens only in derived flows",
+      "max_score": 10
+    },
+    {
+      "name": "4x downscale before detection",
+      "description": "Inside the detection flow's map/transform, the frame is resized to 1/4 width and 1/4 height before being passed to detectMultiScale",
+      "max_score": 12
+    },
+    {
+      "name": "Bounding boxes scaled up 4x",
+      "description": "Bounding box coordinates returned by the cascade are multiplied by 4 to restore full-resolution coordinates",
+      "max_score": 10
+    },
+    {
+      "name": "Full-resolution recognition crop",
+      "description": "The region-of-interest crop for face recognition/embedding is taken from the original (non-downscaled) frame, not from the resized frame used for detection",
+      "max_score": 10
+    },
+    {
+      "name": "Persisted overlay in preview",
+      "description": "A variable holds the most recently detected face boxes and is used to draw overlays on every preview frame, including frames not processed by the detection flow",
+      "max_score": 10
+    },
+    {
+      "name": "No delay in producer",
+      "description": "The frame-producing coroutine or flow does NOT contain delay(), Thread.sleep(), or any explicit pause between consecutive grabber.grab() calls",
+      "max_score": 8
+    },
+    {
+      "name": "Separate detection and emotion flows",
+      "description": "Face detection and emotion classification are implemented as two distinct Flow chains derived from the same frame source, not merged into a single map block",
+      "max_score": 12
+    }
+  ]
+}
